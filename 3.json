@@ -1,0 +1,50 @@
+[
+    {
+      "$addFields": {
+        "imdbRating": {
+          "$cond": {
+            "if": { "$eq": ["$imdb.rating", ""] },
+            "then": null,
+            "else": "$imdb.rating"
+          }
+        }
+      }
+    },
+    {
+      "$match": {
+        "imdbRating": { "$ne": null }
+      }
+    },
+    {
+      "$sort": {
+        "imdbRating": -1
+      }
+    },
+    {
+      "$limit": 100
+    },
+    {
+      "$lookup": {
+        "from": "comments",
+        "localField": "_id",
+        "foreignField": "movie_id",
+        "as": "comments"
+      }
+    },
+    {
+      "$addFields": {
+        "commentCount": { "$size": "$comments" }
+      }
+    },
+    {
+      "$project": {
+        "_id": 0,
+        "title": 1,
+        "imdbRating": 1,
+        "commentCount": 1
+      }
+    },
+    {
+      "$limit": 5
+    }
+  ]  
